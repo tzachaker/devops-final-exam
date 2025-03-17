@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: flask-aws-monitor
-          image: olego700/flask-aws-monitor
+          image: tzachaker/flask-aws-monitor:latest
           ports:
             - containerPort: 5001
           env:
