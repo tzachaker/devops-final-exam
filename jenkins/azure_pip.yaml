@@ -76,3 +76,4 @@ stages:
           docker push $(IMAGE_NAME):latest
           echo "Docker image pushed successfully!"
         displayName: 'Push Docker Image'
+# fix
