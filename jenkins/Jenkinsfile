@@ -1,0 +1,74 @@
+# Jenkins Pipeline for CI/CD Integration
+
+pipeline {
+    agent any
+    
+    environment {
+        DOCKERHUB_USERNAME = credentials('tzachaker')
+        DOCKERHUB_PASSWORD = credentials('Tzach1411!')
+        IMAGE_NAME = 'tzachaker/flask-aws-monitor'
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/tzachaker/devops-final-exam.git'
+            }
+        }
+        
+        stage('Parallel Checks') {
+            parallel {
+                stage('Linting') {
+                    steps {
+                        script {
+                            echo 'Running Linting Checks for Python, Shell, and Dockerfile...'
+                            // Mock Linting commands (can be replaced with actual tools)
+                            sh 'echo "Running Flake8 for Python"'
+                            sh 'echo "Running ShellCheck for Shell Scripts"'
+                            sh 'echo "Running Hadolint for Dockerfile"'
+                        }
+                    }
+                }
+                
+                stage('Security Scan') {
+                    steps {
+                        script {
+                            echo 'Running Security Scans for Docker and Python dependencies...'
+                            // Mock Security Scanning commands (can be replaced with actual tools)
+                            sh 'echo "Running Trivy for Docker Image"'
+                            sh 'echo "Running Bandit for Python"'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo 'Building Docker Image...'
+                    sh 'docker build -t $IMAGE_NAME .'
+                }
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    echo 'Pushing Docker Image to Docker Hub...'
+                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
+                    sh 'docker push $IMAGE_NAME'
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Check logs for details.'
+        }
+    }
+}
