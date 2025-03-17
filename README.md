@@ -1,1 +1,5 @@
-Added project README for section1
+היי יניב,
+
+השתדלתי לעבור שלב שלב בזהירות רבה, אך לא הצלחתי מספר דברים ושמתי במקומם mock 
+-בחלק של Azure DevOps pipeline YAML file, לא הצלחתי להריץ את הpipeline וצירפתי רק את הקוד azure_pip.yaml
+-בחלק של helm, לא הצלחתי להריץ בדפדפן אבל הצגתי צילומי מסך של pods, svc, ingres, וצירפתי כמובן את הקבצי yaml - מופיעים בבראנץ' main, helm.
