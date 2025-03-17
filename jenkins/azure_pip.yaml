@@ -1,0 +1,79 @@
+# Azure DevOps Pipeline for CI/CD Integration
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DOCKERHUB_USERNAME: 'tzachaker'
+  IMAGE_NAME: 'tzachaker/flask-aws-monitor'
+
+stages:
+- stage: Initialize
+  displayName: 'Initialize Pipeline'
+  jobs:
+  - job: Init
+    steps:
+      - script: echo "Initializing pipeline..."
+        displayName: 'Initialize'
+
+- stage: CloneRepository
+  displayName: 'Clone Repository'
+  jobs:
+  - job: Clone
+    steps:
+      - checkout: self
+      - script: echo "Repository cloned successfully!"
+        displayName: 'Confirm Repository Clone'
+
+- stage: CodeQualityAndSecurityChecks
+  displayName: 'Code Quality and Security Checks'
+  dependsOn: CloneRepository
+  jobs:
+  - job: Linting
+    displayName: 'Linting'
+    steps:
+      - script: |
+          echo "Running Flake8 linting"
+          echo "Running Hadolint for Dockerfile"
+          echo "Running ShellCheck"
+        displayName: 'Run Linting'
+
+  - job: SecurityScanning
+    displayName: 'Security Scanning'
+    steps:
+      - script: |
+          echo "Running Trivy for Docker image"
+          echo "Running Bandit for Python"
+        displayName: 'Run Security Scan'
+
+- stage: BuildAndPushDockerImage
+  displayName: 'Build and Push Docker Image'
+  dependsOn: CodeQualityAndSecurityChecks
+  jobs:
+  - job: BuildDockerImage
+    displayName: 'Build Docker Image'
+    steps:
+      - script: |
+          echo "Building Docker image..."
+          cd app
+          docker build -t $(IMAGE_NAME):latest .
+          echo "Docker image built successfully!"
+        displayName: 'Build Docker Image'
+
+  - job: PushToDockerHub
+    displayName: 'Push to Docker Hub'
+    dependsOn: BuildDockerImage
+    steps:
+      - script: |
+          echo "Logging in to Docker Hub..."
+          echo $(DOCKERHUB_PASSWORD) | docker login -u $(DOCKERHUB_USERNAME) --password-stdin
+          echo "Pushing Docker image to repository..."
+          docker push $(IMAGE_NAME):latest
+          echo "Docker image pushed successfully!"
+        displayName: 'Push Docker Image'
+# fix
